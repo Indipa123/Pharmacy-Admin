@@ -8,8 +8,11 @@ const Inventory = () => {
         category: '',
         stock: '',
         price: '',
-        image: ''
+        image: '',
+        size: '',
+        prescription: 'no need'
     });
+    const [editingProductId, setEditingProductId] = useState(null);
 
     useEffect(() => {
         fetchProducts();
@@ -52,22 +55,57 @@ const Inventory = () => {
         e.preventDefault();
     
         try {
-            const response = await axios.post('http://localhost:3000/api/products/add', formData, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            console.log('Product added:', response.data);
+            if (editingProductId) {
+                await axios.put(`http://localhost:3000/api/products/${editingProductId}`, formData, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                console.log('Product updated');
+            } else {
+                await axios.post('http://localhost:3000/api/products/add', formData, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                console.log('Product added');
+            }
             setFormData({
                 name: '',
                 category: '',
                 stock: '',
                 price: '',
-                image: ''
+                image: '',
+                size: '',
+                prescription: 'no need'
             });
+            setEditingProductId(null);
             fetchProducts();
         } catch (error) {
-            console.error('Error adding product:', error);
+            console.error('Error adding/updating product:', error);
+        }
+    };
+
+    const handleEdit = (product) => {
+        setFormData({
+            name: product.name,
+            category: product.category,
+            stock: product.stock,
+            price: product.price,
+            image: '',
+            size: product.size,
+            prescription: product.prescription
+        });
+        setEditingProductId(product.id);
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            await axios.delete(`http://localhost:3000/api/products/${id}`);
+            console.log('Product deleted');
+            fetchProducts();
+        } catch (error) {
+            console.error('Error deleting product:', error);
         }
     };
 
@@ -86,6 +124,10 @@ const Inventory = () => {
     const tdStyle = {
         border: '1px solid #ddd',
         padding: '8px'
+    };
+
+    const buttonStyle = {
+        marginRight: '10px'
     };
 
     return (
@@ -127,12 +169,36 @@ const Inventory = () => {
                     required
                 />
                 <input
-                    type="file"
-                    name="image"
+                    type="text"
+                    name="size"
+                    placeholder="Size"
+                    value={formData.size}
                     onChange={handleChange}
                     required
                 />
-                <button type="submit">Add Product</button>
+                <select
+                    name="prescription"
+                    placeholder="Prescription"
+                    value={formData.prescription}
+                    onChange={handleChange}
+                    required
+                >
+                    <option value="no need">No Need</option>
+                    <option value="need">Need</option>
+                </select>
+                <input
+                    type="file"
+                    name="image"
+                    onChange={handleChange}
+                />
+                {formData.image && (
+                    <img
+                        src={formData.image}
+                        alt="Product Preview"
+                        width="100"
+                    />
+                )}
+                <button type="submit">{editingProductId ? 'Update Product' : 'Add Product'}</button>
             </form>
 
             <table style={tableStyle}>
@@ -142,7 +208,10 @@ const Inventory = () => {
                         <th style={thStyle}>Category</th>
                         <th style={thStyle}>Stock</th>
                         <th style={thStyle}>Price</th>
+                        <th style={thStyle}>Size</th>
+                        <th style={thStyle}>Prescription</th>
                         <th style={thStyle}>Image</th>
+                        <th style={thStyle}>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -152,6 +221,8 @@ const Inventory = () => {
                             <td style={tdStyle}>{product.category}</td>
                             <td style={tdStyle}>{product.stock}</td>
                             <td style={tdStyle}>${product.price}</td>
+                            <td style={tdStyle}>{product.size}</td>
+                            <td style={tdStyle}>{product.prescription === 'need' ? 'Need' : 'No Need'}</td>
                             <td style={tdStyle}>
                                 {product.image && (
                                     <img
@@ -160,6 +231,10 @@ const Inventory = () => {
                                         width="50"
                                     />
                                 )}
+                            </td>
+                            <td style={tdStyle}>
+                                <button style={buttonStyle} onClick={() => handleEdit(product)}>Edit</button>
+                                <button onClick={() => handleDelete(product.id)}>Delete</button>
                             </td>
                         </tr>
                     ))}
