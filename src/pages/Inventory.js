@@ -220,7 +220,7 @@ const Inventory = () => {
                             <td style={tdStyle}>{product.name}</td>
                             <td style={tdStyle}>{product.category}</td>
                             <td style={tdStyle}>{product.stock}</td>
-                            <td style={tdStyle}>${product.price}</td>
+                            <td style={tdStyle}>RS.{product.price}</td>
                             <td style={tdStyle}>{product.size}</td>
                             <td style={tdStyle}>{product.prescription === 'need' ? 'Need' : 'No Need'}</td>
                             <td style={tdStyle}>
