@@ -38,26 +38,6 @@ const Orders = () => {
         }));
     };
 
-    const handleStatusChange = async (orderId, newStatus) => {
-        try {
-            await axios.put(`http://localhost:3000/api/orders/orders/${orderId}`, { order_status: newStatus }, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            console.log('Order status updated');
-
-            // Update local state for instant UI feedback
-            setOrders(prevOrders =>
-                prevOrders.map(order =>
-                    order.id === orderId ? { ...order, order_status: newStatus } : order
-                )
-            );
-        } catch (error) {
-            console.error('Error updating order status:', error);
-        }
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -163,16 +143,7 @@ const Orders = () => {
                             <td style={tdStyle}>{order.name}</td>
                             <td style={tdStyle}>{order.user_email}</td>
                             <td style={tdStyle}>RS.{order.total}</td>
-                            <td style={tdStyle}>
-                                <select
-                                    value={order.order_status}
-                                    onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                                >
-                                    <option value="pending">Pending</option>
-                                    <option value="processing">Processing</option>
-                                    <option value="completed">Completed</option>
-                                </select>
-                            </td>
+                            <td style={tdStyle}>{order.order_status}</td>
                             <td style={tdStyle}>{order.payment_method}</td>
                             <td style={tdStyle}>{order.items}</td>
                             <td style={tdStyle}>
