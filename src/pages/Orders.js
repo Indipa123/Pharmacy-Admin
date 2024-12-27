@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Orders = () => {
     const [orders, setOrders] = useState([]);
@@ -12,6 +13,7 @@ const Orders = () => {
         items: ''
     });
     const [editingOrderId, setEditingOrderId] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchOrders();
@@ -50,7 +52,6 @@ const Orders = () => {
                 });
                 console.log('Order updated');
 
-                // Update local state after editing
                 setOrders(prevOrders =>
                     prevOrders.map(order =>
                         order.id === editingOrderId ? { ...order, ...formData } : order
@@ -122,8 +123,11 @@ const Orders = () => {
 
     return (
         <div>
-            <h2>Orders</h2>
-            <p>Manage your pharmacy orders here.</p>
+            <h2 style={{ marginBottom: '10px' }}>Orders</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <p style={{ margin: 0 }}>Manage your pharmacy orders here.</p>
+                <button style={prescriptionButtonStyle} onClick={() => navigate('/prescription-orders')}>Prescription Orders</button>
+            </div>
 
             <table style={tableStyle}>
                 <thead>
@@ -134,6 +138,7 @@ const Orders = () => {
                         <th style={thStyle}>Order Status</th>
                         <th style={thStyle}>Payment Method</th>
                         <th style={thStyle}>Items</th>
+                        <th style={thStyle}>Date</th>
                         <th style={thStyle}>Actions</th>
                     </tr>
                 </thead>
@@ -146,6 +151,7 @@ const Orders = () => {
                             <td style={tdStyle}>{order.order_status}</td>
                             <td style={tdStyle}>{order.payment_method}</td>
                             <td style={tdStyle}>{order.items}</td>
+                            <td style={tdStyle}>{order.createdAt}</td>
                             <td style={tdStyle}>
                                 <button style={buttonStyle} onClick={() => handleEdit(order)}>Edit</button>
                                 <button onClick={() => handleDelete(order.id)}>Delete</button>
@@ -175,6 +181,15 @@ const Orders = () => {
             </form>
         </div>
     );
+};
+
+const prescriptionButtonStyle = {
+    padding: '10px 20px',
+    backgroundColor: '#007BFF',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer'
 };
 
 export default Orders;
