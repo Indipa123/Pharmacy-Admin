@@ -10,6 +10,7 @@ const PresOrders = () => {
         pres_status: 'pending'
     });
     const [orderFormData, setOrderFormData] = useState({
+        pres_id: '',
         user_email: '',
         medications: '',
         total: ''
@@ -82,17 +83,19 @@ const PresOrders = () => {
         e.preventDefault();
 
         try {
-            await axios.post('http://localhost:3000/api/orders/create', orderFormData, {
+            await axios.post('http://localhost:3000/api/orders/presorders/create', orderFormData, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
             console.log('Order created');
             setOrderFormData({
+                pres_id: '',
                 user_email: '',
                 medications: '',
                 total: ''
             });
+            fetchPresOrders(); // Refresh the prescription orders table
         } catch (error) {
             console.error('Error creating order:', error);
         }
@@ -119,10 +122,11 @@ const PresOrders = () => {
         setSelectedImage(`data:image/jpeg;base64,${pres_image}`);
     };
 
-    const handleCreateOrder = (user_email) => {
+    const handleCreateOrder = (pres_id, user_email) => {
         setSelectedUserEmail(user_email);
         setOrderFormData(prevState => ({
             ...prevState,
+            pres_id,
             user_email
         }));
     };
@@ -207,7 +211,7 @@ const PresOrders = () => {
                             <td style={tdStyle}>
                                 <button style={buttonStyle} onClick={() => handleEdit(order)}>Edit</button>
                                 <button style={buttonStyle} onClick={() => handleDelete(order.id)}>Delete</button>
-                                <button style={buttonStyle} onClick={() => handleCreateOrder(order.user_email)}>Create Order</button>
+                                <button style={buttonStyle} onClick={() => handleCreateOrder(order.id, order.user_email)}>Create Order</button>
                             </td>
                         </tr>
                     ))}
@@ -226,6 +230,11 @@ const PresOrders = () => {
 
             <h3>Create Order</h3>
             <form onSubmit={handleOrderSubmit}>
+                <input
+                    type="hidden"
+                    name="pres_id"
+                    value={orderFormData.pres_id}
+                />
                 <input
                     type="email"
                     name="user_email"
